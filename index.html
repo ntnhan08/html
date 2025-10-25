@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Soạn Thảo HTML</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6ee0;
+            --secondary-color: #6c757d;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+            --success-color: #10b981;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .mobile-tabs {
+            display: none;
+            background: #252525;
+            border-bottom: 1px solid #333;
+        }
+
+        .mobile-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .mobile-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .editor-preview-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            min-height: 500px; /* Đảm bảo container luôn có chiều cao tối thiểu */
+        }
+
+        .code-section, .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            min-height: 400px; /* Đảm bảo mỗi section có chiều cao tối thiểu */
+        }
+
+        .preview-section {
+            background: white;
+            border-left: 1px solid #333;
+        }
+
+        .section-header {
+            background: #252525;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .tab-container {
+            display: flex;
+            background: #252525;
+            overflow-x: auto;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            background: #1e1e1e;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            min-height: 350px; /* Đảm bảo tab content có chiều cao tối thiểu */
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 350px; /* Đảm bảo CodeMirror luôn có chiều cao tối thiểu */
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 0;
+            border: none;
+            overflow: auto;
+            min-height: 350px; /* Đảm bảo preview có chiều cao tối thiểu */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            min-height: 350px; /* Đảm bảo iframe có chiều cao tối thiểu */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background: #252525;
+            border-top: 1px solid #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .run-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .run-btn:hover {
+            background: #3a5ecf;
+        }
+
+        .clear-btn {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #c82333;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .mobile-tabs {
+                display: flex;
+            }
+            
+            .preview-section {
+                border-left: none;
+            }
+            
+            .code-section, .preview-section {
+                position: absolute;
+                top: 45px;
+                left: 0;
+                width: 100%;
+                height: calc(100% - 105px);
+                min-height: calc(100vh - 150px); /* Điều chỉnh chiều cao tối thiểu cho mobile */
+            }
+            
+            .preview-section {
+                transform: translateX(100%);
+            }
+            
+            .code-section.active, .preview-section.active {
+                transform: translateX(0);
+            }
+            
+            .button-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                z-index: 10;
+            }
+            
+            .editor-preview-container {
+                min-height: 400px; /* Điều chỉnh cho mobile */
+            }
+            
+            .tab-content, .CodeMirror, .preview-container, iframe {
+                min-height: 300px; /* Điều chỉnh cho mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .editor-preview-container {
+                min-height: 350px;
+            }
+            
+            .tab-content, .CodeMirror, .preview-container, iframe {
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mobile-tabs">
+            <div class="mobile-tab active" data-tab="code">Code</div>
+            <div class="mobile-tab" data-tab="preview">Kết Quả</div>
+        </div>
+        
+        <div class="editor-preview-container">
+            <div class="code-section active">
+                <div class="section-header">
+                    <div class="section-title">Mã Nguồn</div>
+                </div>
+                <div class="tab-container">
+                    <div class="tab active" data-tab="html">HTML</div>
+                    <div class="tab" data-tab="css">CSS</div>
+                    <div class="tab" data-tab="js">JavaScript</div>
+                </div>
+                <div class="tab-content active" id="html-content">
+                    <textarea id="html-code"><!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang web của tôi</title>
+</head>
+<body>
+    <h1>Xin chào!</h1>
+    <p>Đây là trang web được tạo bằng trình soạn thảo HTML.</p>
+</body>
+</html></textarea>
+                </div>
+                <div class="tab-content" id="css-content">
+                    <textarea id="css-code">/* 
+ * TRÌNH SOẠN THẢO CSS
+ * 
+ * Nhập mã CSS của bạn vào đây. CSS sẽ được áp dụng trực tiếp vào trang HTML.
+ * 
+ * Ví dụ:
+ * - Để thay đổi màu nền: body { background-color: #f0f0f0; }
+ * - Để thay đổi font chữ: body { font-family: Arial, sans-serif; }
+ * - Để tạo hiệu ứng hover: button:hover { background-color: #4a6ee0; }
+ * 
+ * CSS được viết theo cú pháp: selector { property: value; }
+ */
+
+/* Bắt đầu viết CSS của bạn từ đây */</textarea>
+                </div>
+                <div class="tab-content" id="js-content">
+                    <textarea id="js-code">/* 
+ * TRÌNH SOẠN THẢO JAVASCRIPT
+ * 
+ * Nhập mã JavaScript của bạn vào đây. JS sẽ được thực thi trên trang HTML.
+ * 
+ * Ví dụ:
+ * - Hiển thị thông báo: alert('Xin chào!');
+ * - Thay đổi nội dung: document.getElementById('id').innerHTML = 'Nội dung mới';
+ * - Xử lý sự kiện: element.addEventListener('click', function() { ... });
+ * 
+ * Mẹo: Sử dụng console.log() để in ra kết quả kiểm tra
+ */
+
+// Bắt đầu viết JavaScript của bạn từ đây</textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="section-header">
+                    <div class="section-title">Kết Quả</div>
+                </div>
+                <div class="preview-container">
+                    <iframe id="preview-frame"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="run-btn" id="run-btn">
+                <span>▶</span> Chạy Mã
+            </button>
+            <button class="clear-btn" id="clear-btn">
+                <span>🗑️</span> Xóa Tất Cả
+            </button>
+            <button class="reset-btn" id="reset-btn">
+                <span>🔄</span> Đặt Lại
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/xml-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/css-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/javascript-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/html-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchtags.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/comment/comment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/xml-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/indent-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/comment-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/trailingspace.min.js"></script>
+    
+    <script>
+        // Khởi tạo CodeMirror editors với gợi ý code và tự động thụt đầu dòng
+        const htmlEditor = CodeMirror.fromTextArea(document.getElementById('html-code'), {
+            mode: 'htmlmixed',
+            theme: 'material-darker',
+            lineNumbers: true,
+            autoCloseTags: true,
+            matchTags: true,
+            matchBrackets: true,
+            lineWrapping: true,
+            indentUnit: 4,
+            smartIndent: true,
+            indentWithTabs: false,
+            foldGutter: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+            styleActiveLine: true,
+            showTrailingSpace: true,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+                    }
+                },
+                "Shift-Tab": function(cm) {
+                    cm.indentSelection("subtract");
+                },
+                "'<'": function(cm) {
+                    cm.closeTag(cm, '>');
+                },
+                "'/'": function(cm) {
+                    cm.closeTag(cm, '>');
+                },
+                "'{'": function(cm) {
+                    cm.closeTag(cm, '}');
+                },
+                "'('": function(cm) {
+                    cm.closeTag(cm, ')');
+                },
+                "'['": function(cm) {
+                    cm.closeTag(cm, ']');
+                },
+                "Ctrl-Space": "autocomplete",
+                "Alt-Space": "autocomplete",
+                "Ctrl-Q": function(cm) { cm.foldCode(cm.getCursor()); },
+                "Ctrl-/": function(cm) { cm.toggleComment(); },
+                "Cmd-/": function(cm) { cm.toggleComment(); }
+            },
+            hintOptions: {
+                completeSingle: false
+            }
+        });
+
+        const cssEditor = CodeMirror.fromTextArea(document.getElementById('css-code'), {
+            mode: 'css',
+            theme: 'material-darker',
+            lineNumbers: true,
+            lineWrapping: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            smartIndent: true,
+            indentWithTabs: false,
+            foldGutter: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+            styleActiveLine: true,
+            showTrailingSpace: true,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+                    }
+                },
+                "Shift-Tab": function(cm) {
+                    cm.indentSelection("subtract");
+                },
+                "Ctrl-Space": "autocomplete",
+                "Alt-Space": "autocomplete",
+                "Ctrl-/": function(cm) { cm.toggleComment(); },
+                "Cmd-/": function(cm) { cm.toggleComment(); }
+            },
+            hintOptions: {
+                completeSingle: false
+            }
+        });
+
+        const jsEditor = CodeMirror.fromTextArea(document.getElementById('js-code'), {
+            mode: 'javascript',
+            theme: 'material-darker',
+            lineNumbers: true,
+            lineWrapping: true,
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            indentUnit: 4,
+            smartIndent: true,
+            indentWithTabs: false,
+            foldGutter: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+            styleActiveLine: true,
+            showTrailingSpace: true,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+                    }
+                },
+                "Shift-Tab": function(cm) {
+                    cm.indentSelection("subtract");
+                },
+                "Ctrl-Space": "autocomplete",
+                "Alt-Space": "autocomplete",
+                "Ctrl-/": function(cm) { cm.toggleComment(); },
+                "Cmd-/": function(cm) { cm.toggleComment(); }
+            },
+            hintOptions: {
+                completeSingle: false
+            }
+        });
+
+        // Tự động hiển thị gợi ý khi nhập
+        htmlEditor.on("inputRead", function(cm, change) {
+            if (change.text.length > 0 && change.text[0].length > 0) {
+                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
+            }
+        });
+
+        cssEditor.on("inputRead", function(cm, change) {
+            if (change.text.length > 0 && change.text[0].length > 0) {
+                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
+            }
+        });
+
+        jsEditor.on("inputRead", function(cm, change) {
+            if (change.text.length > 0 && change.text[0].length > 0) {
+                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
+            }
+        });
+
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+                
+                // Refresh the editor to ensure proper rendering
+                setTimeout(() => {
+                    if (tabId === 'html') htmlEditor.refresh();
+                    if (tabId === 'css') cssEditor.refresh();
+                    if (tabId === 'js') jsEditor.refresh();
+                }, 10);
+            });
+        });
+
+        // Mobile tab switching
+        const mobileTabs = document.querySelectorAll('.mobile-tab');
+        const codeSection = document.querySelector('.code-section');
+        const previewSection = document.querySelector('.preview-section');
+
+        mobileTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                mobileTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabType = tab.getAttribute('data-tab');
+                if (tabType === 'code') {
+                    codeSection.classList.add('active');
+                    previewSection.classList.remove('active');
+                } else {
+                    codeSection.classList.remove('active');
+                    previewSection.classList.add('active');
+                }
+            });
+        });
+
+        // Run code functionality
+        const runBtn = document.getElementById('run-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const previewFrame = document.getElementById('preview-frame');
+
+        function runCode() {
+            const html = htmlEditor.getValue();
+            const css = cssEditor.getValue();
+            const js = jsEditor.getValue();
+            
+            const previewDocument = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            
+            // Create a complete HTML document with the provided code
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>${css}</style>
+                </head>
+                <body>
+                    ${html}
+                    <script>${js}<\/script>
+                </body>
+                </html>
+            `;
+            
+            previewDocument.open();
+            previewDocument.write(fullHtml);
+            previewDocument.close();
+        }
+
+        function clearAllCode() {
+            if (confirm('Bạn có chắc chắn muốn xóa tất cả mã? Hành động này không thể hoàn tác.')) {
+                htmlEditor.setValue('');
+                cssEditor.setValue('');
+                jsEditor.setValue('');
+                runCode();
+            }
+        }
+
+        function resetToDefault() {
+            if (confirm('Bạn có muốn đặt lại tất cả về trạng thái ban đầu?')) {
+                htmlEditor.setValue(`<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang web của tôi</title>
+</head>
+<body>
+    <h1>Xin chào!</h1>
+    <p>Đây là trang web được tạo bằng trình soạn thảo HTML.</p>
+</body>
+</html>`);
+                cssEditor.setValue(`/* 
+ * TRÌNH SOẠN THẢO CSS
+ * 
+ * Nhập mã CSS của bạn vào đây. CSS sẽ được áp dụng trực tiếp vào trang HTML.
+ * 
+ * Ví dụ:
+ * - Để thay đổi màu nền: body { background-color: #f0f0f0; }
+ * - Để thay đổi font chữ: body { font-family: Arial, sans-serif; }
+ * - Để tạo hiệu ứng hover: button:hover { background-color: #4a6ee0; }
+ * 
+ * CSS được viết theo cú pháp: selector { property: value; }
+ */
+
+/* Bắt đầu viết CSS của bạn từ đây */`);
+                jsEditor.setValue(`/* 
+ * TRÌNH SOẠN THẢO JAVASCRIPT
+ * 
+ * Nhập mã JavaScript của bạn vào đây. JS sẽ được thực thi trên trang HTML.
+ * 
+ * Ví dụ:
+ * - Hiển thị thông báo: alert('Xin chào!');
+ * - Thay đổi nội dung: document.getElementById('id').innerHTML = 'Nội dung mới';
+ * - Xử lý sự kiện: element.addEventListener('click', function() { ... });
+ * 
+ * Mẹo: Sử dụng console.log() để in ra kết quả kiểm tra
+ */
+
+// Bắt đầu viết JavaScript của bạn từ đây`);
+                runCode();
+            }
+        }
+
+        // Event listeners
+        runBtn.addEventListener('click', runCode);
+        clearBtn.addEventListener('click', clearAllCode);
+        resetBtn.addEventListener('click', resetToDefault);
+
+        // Auto-run code after a short delay when typing
+        let timeout;
+        [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+            editor.on('change', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(runCode, 800);
+            });
+        });
+
+        // Run code on initial load
+        document.addEventListener('DOMContentLoaded', runCode);
+        
+        // Xử lý thay đổi kích thước màn hình
+        window.addEventListener('resize', function() {
+            [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+                editor.refresh();
+            });
+        });
+    </script>
+</body>
+</html>
