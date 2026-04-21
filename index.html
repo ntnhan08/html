@@ -2,83 +2,122 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Editor</title>
-    <link rel="icon" href="logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✨ Code Studio Pro · Soạn thảo HTML/CSS/JS</title>
+    <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/eclipse.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.css">
     <style>
-        :root {
-            --primary-color: #4a6ee0;
-            --secondary-color: #6c757d;
-            --dark-color: #2d3748;
-            --light-color: #f8f9fa;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --border-radius: 8px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --bg-body: #0b0f19;
+            --bg-panel: #151e2c;
+            --bg-header: #1a2637;
+            --text-primary: #eef2fb;
+            --text-secondary: #9aabcf;
+            --border-color: #2a3a52;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-soft: rgba(59, 130, 246, 0.15);
+            --btn-secondary: #334155;
+            --btn-warning: #ef4444;
+            --btn-success: #10b981;
+            --error-bg: rgba(239, 68, 68, 0.1);
+            --preview-bg: #0f172a;
+            --shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.5);
+            --shadow-sm: 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 30px;
+        }
+
+        body.light {
+            --bg-body: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-header: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-soft: rgba(59, 130, 246, 0.08);
+            --btn-secondary: #64748b;
+            --btn-warning: #ef4444;
+            --btn-success: #059669;
+            --error-bg: #fee2e2;
+            --preview-bg: #f1f5f9;
+            --shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
+            --shadow-sm: 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            line-height: 1.6;
-            overflow-x: hidden;
+            background: var(--bg-body);
+            color: var(--text-primary);
             height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.2s;
+            animation: fadeIn 0.5s ease;
         }
+
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 var(--primary-soft); } 50% { box-shadow: 0 0 0 4px var(--primary-soft); } }
 
         .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
+            backdrop-filter: blur(2px);
         }
 
+        /* Mobile tabs */
         .mobile-tabs {
             display: none;
-            background: #252525;
-            border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
         }
-
         .mobile-tab {
             flex: 1;
             text-align: center;
             padding: 14px;
-            cursor: pointer;
             font-weight: 600;
+            cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
+            color: var(--text-primary);
             position: relative;
+            letter-spacing: 0.3px;
         }
-
         .mobile-tab.active {
-            background: var(--primary-color);
+            background: var(--primary);
             color: white;
+            transform: scale(1.02);
         }
-
         .mobile-tab.has-error::after {
             content: '';
             position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
+            top: 8px; right: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background-color: var(--error-color);
+            background: #ef4444;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        .main-row {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
 
         .editor-preview-container {
@@ -92,389 +131,362 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            background: var(--bg-panel);
             transition: var(--transition);
-            min-height: 400px;
         }
-
         .preview-section {
-            background: white;
-            border-left: 1px solid #333;
+            background: var(--preview-bg);
+            border-left: 1px solid var(--border-color);
         }
 
         .section-header {
-            background: #252525;
-            color: white;
-            padding: 12px 20px;
+            background: var(--bg-header);
+            padding: 12px 22px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            min-height: 50px;
+            border-bottom: 1px solid var(--border-color);
+            min-height: 58px;
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
         }
-
         .section-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .error-indicator {
+            font-weight: 650;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            color: var(--error-color);
+            gap: 12px;
+            color: var(--text-primary);
+            font-size: 1.05rem;
         }
 
-        .error-indicator.hidden {
-            display: none;
+        .aspect-ratio-selector {
+            display: flex;
+            gap: 6px;
+            background: var(--bg-panel);
+            padding: 5px;
+            border-radius: 40px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(4px);
+        }
+        .ratio-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.3px;
+        }
+        .ratio-btn:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+        .ratio-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 12px;
+            flex-wrap: wrap;
+        }
+        .upload-group { display: flex; gap: 6px; }
+        .action-btn {
+            background: var(--btn-secondary);
+            border: none;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+        }
+        .action-btn svg {
+            width: 16px; height: 16px;
+            fill: currentColor;
+        }
+        .action-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -5px var(--primary-soft);
+        }
+        .action-btn.auto-fix { 
+            background: var(--btn-success); 
+            animation: slideUp 0.3s ease;
+        }
+        .action-btn.auto-fix:hover { 
+            background: #059669; 
+            box-shadow: 0 8px 15px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+        }
+        .theme-toggle-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .theme-toggle-btn:hover { 
+            background: var(--primary); 
+            color: white; 
+            transform: rotate(15deg) scale(1.05);
+            border-color: transparent;
         }
 
         .tab-container {
             display: flex;
-            background: #252525;
+            background: var(--bg-panel);
             overflow-x: auto;
-            border-bottom: 1px solid #333;
-            scrollbar-width: thin;
-            scrollbar-color: #444 #252525;
+            border-bottom: 1px solid var(--border-color);
         }
-
-        .tab-container::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .tab-container::-webkit-scrollbar-track {
-            background: #252525;
-        }
-
-        .tab-container::-webkit-scrollbar-thumb {
-            background-color: #444;
-            border-radius: 3px;
-        }
-
         .tab {
-            padding: 12px 18px;
+            padding: 12px 22px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: var(--transition);
             white-space: nowrap;
-            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             position: relative;
-            min-width: 80px;
-            text-align: center;
         }
-
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--primary-soft);
+        }
         .tab.active {
-            border-bottom-color: var(--primary-color);
-            background: #1e1e1e;
+            border-bottom-color: var(--primary);
+            background: var(--primary-soft);
             font-weight: 600;
+            color: var(--primary);
         }
-
         .tab.has-error::after {
             content: '';
             position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 6px;
-            height: 6px;
+            top: 8px; right: 8px;
+            width: 7px; height: 7px;
             border-radius: 50%;
-            background-color: var(--error-color);
+            background: #ef4444;
+            animation: pulseGlow 1.5s infinite;
         }
-
         .tab-content {
             display: none;
             flex: 1;
             overflow: hidden;
-            position: relative;
         }
-
-        .tab-content.active {
-            display: flex;
-        }
+        .tab-content.active { display: flex; }
 
         .CodeMirror {
             height: 100%;
             font-size: 14px;
-            line-height: 1.5;
+            background: var(--bg-panel) !important;
+            color: var(--text-primary) !important;
             width: 100% !important;
-            max-width: 100% !important;
+            transition: background 0.3s;
         }
-
-        .CodeMirror-scroll {
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-
-        .CodeMirror-lines {
-            width: 100% !important;
-        }
-
-        .CodeMirror-line {
-            width: 100% !important;
-        }
-
-        .CodeMirror-lint-mark-error {
-            background-color: rgba(239, 68, 68, 0.1);
-            border-bottom: 2px dotted var(--error-color);
-        }
-
-        .CodeMirror-lint-tooltip {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: var(--border-radius);
-            color: #e0e0e0;
-            font-size: 0.9rem;
-            max-width: 300px;
-            padding: 8px 12px;
-            z-index: 1000;
+        .CodeMirror-gutters {
+            background: var(--bg-header) !important;
+            border-right: 1px solid var(--border-color) !important;
         }
 
         .preview-container {
             flex: 1;
-            padding: 0;
-            border: none;
-            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--preview-bg);
+            padding: 20px;
+        }
+        .preview-frame-wrapper {
             position: relative;
-        }
-
-        iframe {
             width: 100%;
-            height: 100%;
-            border: none;
+            max-width: 100%;
             background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.3s, transform 0.2s;
+            border: 1px solid var(--border-color);
         }
-
+        .preview-frame-wrapper:hover {
+            box-shadow: 0 30px 45px -12px rgba(0,0,0,0.4);
+        }
+        .preview-frame-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            border-radius: var(--radius-lg);
+            background: white;
+            transition: opacity 0.2s;
+        }
         .iframe-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(6px);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             color: white;
-            font-size: 1.2rem;
+            border-radius: var(--radius-lg);
             z-index: 10;
-            display: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.25s;
+            font-weight: 500;
         }
-
         .iframe-overlay.active {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
         }
 
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            padding: 15px;
-            background: #252525;
-            border-top: 1px solid #333;
-            flex-wrap: wrap;
+            gap: 18px;
+            padding: 16px 24px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
         }
-
-        button {
-            padding: 10px 20px;
+        .button-container.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+        .btn {
+            padding: 14px 28px;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 50px;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             cursor: pointer;
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-        }
-
-        .run-btn {
-            background: var(--primary-color);
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
             color: white;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
         }
-
-        .run-btn:hover {
-            background: #3a5ecf;
-            transform: translateY(-2px);
-        }
-
-        .clear-btn {
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .clear-btn:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .reset-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .reset-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 20px -8px var(--primary); }
+        .btn-secondary { background: var(--btn-secondary); }
+        .btn-secondary:hover { background: #475569; transform: translateY(-3px); }
+        .btn-warning { background: var(--btn-warning); }
+        .btn-warning:hover { background: #dc2626; transform: translateY(-3px); }
 
         .error-panel {
-            background: #2d1a1a;
-            border-top: 1px solid #5c2c2c;
-            color: #f8a5a5;
-            padding: 12px 16px;
-            font-size: 0.9rem;
+            background: var(--error-bg);
+            border-top: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 12px 18px;
+            font-size: 0.85rem;
             max-height: 120px;
             overflow-y: auto;
             display: none;
+            backdrop-filter: blur(4px);
+            animation: slideUp 0.2s ease;
         }
+        .error-panel.active { display: block; }
+        body.light .error-panel { color: #b91c1c; }
 
-        .error-panel.active {
-            display: block;
-        }
-
-        .error-item {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .error-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .error-icon {
-            color: var(--error-color);
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .error-message {
-            flex: 1;
-        }
-
-        /* Responsive styles */
+        /* Responsive */
         @media (max-width: 768px) {
-            .mobile-tabs {
-                display: flex;
-            }
-            
-            .preview-section {
-                border-left: none;
-            }
-            
+            .mobile-tabs { display: flex; }
             .code-section, .preview-section {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
                 z-index: 1;
+                transition: transform 0.3s cubic-bezier(0.2,0,0,1);
             }
-            
-            .preview-section {
-                transform: translateX(100%);
-            }
-            
+            .preview-section { transform: translateX(100%); }
             .code-section.active, .preview-section.active {
                 transform: translateX(0);
                 z-index: 2;
             }
-            
             .button-container {
                 position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
+                bottom: 0; left: 0; width: 100%;
                 z-index: 100;
-                padding: 12px;
-                gap: 10px;
+                padding: 14px 16px;
             }
-            
-            button {
-                flex: 1;
-                padding: 12px 16px;
-                font-size: 0.9rem;
-                justify-content: center;
-            }
-            
-            .tab {
-                padding: 10px 14px;
-                font-size: 0.9rem;
-                min-width: 70px;
-            }
-            
-            .section-header {
-                padding: 10px 16px;
-                min-height: 46px;
-            }
-            
-            .section-title {
-                font-size: 1rem;
-            }
-            
-            .error-panel {
-                max-height: 100px;
-                padding: 10px 12px;
-                font-size: 0.85rem;
-            }
+            .btn { flex: 1; padding: 14px 10px; font-size: 0.9rem; }
+            .header-actions { gap: 6px; }
+            .action-btn { padding: 7px 12px; font-size: 0.7rem; }
         }
 
-        @media (max-width: 480px) {
-            .tab-container {
-                padding: 0 8px;
-            }
-            
-            .tab {
-                padding: 10px 12px;
-                font-size: 0.85rem;
-                min-width: 60px;
-            }
-            
-            .button-container {
-                padding: 10px;
-            }
-            
-            button {
-                padding: 10px 12px;
-                font-size: 0.85rem;
-            }
-            
-            .mobile-tab {
-                padding: 12px 10px;
-                font-size: 0.9rem;
-            }
+        /* Animation for elements */
+        .action-btn, .btn, .tab, .ratio-btn {
+            transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        @media (max-width: 360px) {
-            .tab {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-                min-width: 55px;
-            }
-            
-            .button-container {
-                flex-direction: column;
-            }
-            
-            button {
-                width: 100%;
-            }
+        .section-header {
+            transition: background 0.3s, border-color 0.3s;
         }
+        /* modern scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="mobile-tabs">
-            <div class="mobile-tab active" data-tab="code">Code</div>
-            <div class="mobile-tab" data-tab="preview">Kết Quả</div>
-        </div>
-        
+<div class="container">
+    <div class="mobile-tabs">
+        <div class="mobile-tab active" data-tab="code">✎ Code</div>
+        <div class="mobile-tab" data-tab="preview">👁️ Kết quả</div>
+    </div>
+
+    <div class="main-row">
         <div class="editor-preview-container">
+            <!-- CODE SECTION -->
             <div class="code-section active">
                 <div class="section-header">
-                    <div class="section-title">Mã Nguồn</div>
-                    <div class="error-indicator hidden" id="error-indicator">
-                        <span>⚠</span> <span id="error-count">0 lỗi</span>
+                    <div class="section-title">📄 Mã nguồn</div>
+                    <div class="header-actions">
+                        <div class="upload-group">
+                            <button class="action-btn" id="uploadHtmlBtn">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2zm0-4h8v2H8v-2z"/></svg>
+                                HTML
+                            </button>
+                            <button class="action-btn" id="uploadCssBtn">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2z"/></svg>
+                                CSS
+                            </button>
+                            <button class="action-btn" id="uploadJsBtn">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2z"/></svg>
+                                JS
+                            </button>
+                        </div>
+                        <button class="action-btn auto-fix" id="autoFixHtmlBtn">
+                            <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                            Sửa & Định dạng
+                        </button>
+                        <button class="theme-toggle-btn" id="themeToggleBtn"></button>
                     </div>
                 </div>
                 <div class="tab-container">
@@ -484,590 +496,278 @@
                 </div>
                 <div class="tab-content active" id="html-content">
                     <textarea id="html-code"><!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang web của tôi</title>
-</head>
-<body>
-    <h1>Xin chào!</h1>
-    <p>Đây là trang web được tạo bằng trình soạn thảo HTML.</p>
-</body>
+<html>
+<head><meta charset="UTF-8"><title>Trang của tôi</title></head>
+<body><h1>Xin chào!</h1><p>Đây là trình soạn thảo HTML.</p></body>
 </html></textarea>
                 </div>
                 <div class="tab-content" id="css-content">
-                    <textarea id="css-code">/* 
- * TRÌNH SOẠN THẢO CSS
- * 
- * Nhập mã CSS của bạn vào đây. CSS sẽ được áp dụng trực tiếp vào trang HTML.
- * 
- * Ví dụ:
- * - Để thay đổi màu nền: body { background-color: #f0f0f0; }
- * - Để thay đổi font chữ: body { font-family: Arial, sans-serif; }
- * - Để tạo hiệu ứng hover: button:hover { background-color: #4a6ee0; }
- * 
- * CSS được viết theo cú pháp: selector { property: value; }
- */
-
-/* Bắt đầu viết CSS của bạn từ đây */</textarea>
+                    <textarea id="css-code"></textarea>
                 </div>
                 <div class="tab-content" id="js-content">
-                    <textarea id="js-code">/* 
- * TRÌNH SOẠN THẢO JAVASCRIPT
- * 
- * Nhập mã JavaScript của bạn vào đây. JS sẽ được thực thi trên trang HTML.
- * 
- * Ví dụ:
- * - Hiển thị thông báo: alert('Xin chào!');
- * - Thay đổi nội dung: document.getElementById('id').innerHTML = 'Nội dung mới';
- * - Xử lý sự kiện: element.addEventListener('click', function() { ... });
- * 
- * Mẹo: Sử dụng console.log() để in ra kết quả kiểm tra
- */
-
-// Bắt đầu viết JavaScript của bạn từ đây</textarea>
+                    <textarea id="js-code"></textarea>
                 </div>
-                <div class="error-panel" id="error-panel">
-                    <!-- Lỗi sẽ được hiển thị ở đây -->
-                </div>
+                <div class="error-panel" id="error-panel"></div>
             </div>
 
+            <!-- PREVIEW SECTION -->
             <div class="preview-section">
                 <div class="section-header">
-                    <div class="section-title">Kết Quả</div>
+                    <div class="section-title">🖥️ Kết quả trực tiếp</div>
+                    <div class="aspect-ratio-selector" id="aspectRatioSelector">
+                        <button class="ratio-btn active" data-ratio="16:9">16:9</button>
+                        <button class="ratio-btn" data-ratio="16:10">16:10</button>
+                        <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                        <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                        <button class="ratio-btn" data-ratio="9:16">9:16</button>
+                        <button class="ratio-btn" data-ratio="21:9">21:9</button>
+                    </div>
                 </div>
                 <div class="preview-container">
-                    <div class="iframe-overlay" id="iframe-overlay">
-                        <div>Đang tải...</div>
+                    <div class="preview-frame-wrapper" id="frameWrapper" style="aspect-ratio:16/9">
+                        <div class="iframe-overlay" id="iframe-overlay">
+                            <span>✨ Đang tải...</span>
+                        </div>
+                        <iframe id="preview-frame"></iframe>
                     </div>
-                    <iframe id="preview-frame"></iframe>
                 </div>
             </div>
-        </div>
-
-        <div class="button-container">
-            <button class="run-btn" id="run-btn">
-                 Chạy Mã
-            </button>
-            <button class="clear-btn" id="clear-btn">
-                 Xóa Tất Cả
-            </button>
-            <button class="reset-btn" id="reset-btn">
-                 Đặt Lại
-            </button>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/xml-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/css-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/javascript-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/html-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchtags.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/comment/comment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/xml-fold.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/brace-fold.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/indent-fold.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/comment-fold.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/trailingspace.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/javascript-lint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/css-lint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.6/jshint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/csslint/1.0.5/csslint.min.js"></script>
-    
-    <script>
-        // Khởi tạo CodeMirror editors với gợi ý code và tự động thụt đầu dòng
+    <div class="button-container" id="globalButtonBar">
+        <button class="btn btn-primary" id="run-btn">▶ Chạy</button>
+        <button class="btn btn-secondary" id="clear-btn">🗑️ Xóa hết</button>
+        <button class="btn btn-warning" id="reset-btn">↻ Đặt lại</button>
+    </div>
+</div>
+
+<input type="file" id="htmlFileInput" accept=".html,.htm" style="display:none">
+<input type="file" id="cssFileInput" accept=".css" style="display:none">
+<input type="file" id="jsFileInput" accept=".js" style="display:none">
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/xml-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/css-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/javascript-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/html-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/javascript-lint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/css-lint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.6/jshint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/csslint/1.0.5/csslint.min.js"></script>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ----- Theme & Icons -----
+        const moonIcon = `<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>`;
+        const sunIcon = `<svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2v-2H2v2zm18 0h2v-2h-2v2zm-5-7.24V2h-2v3.76l2-2zM9 2H7v3.76l2-2V2zm10.24 5l-2 2 2 2 2-2-2-2zM5.76 7l-2 2 2 2 2-2-2-2zM12 18c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/></svg>`;
+        const body = document.body;
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        let currentTheme = 'dark';
+        const editorThemes = { dark: 'material-darker', light: 'eclipse' };
+
+        // ----- Editors -----
         const htmlEditor = CodeMirror.fromTextArea(document.getElementById('html-code'), {
-            mode: 'htmlmixed',
-            theme: 'material-darker',
-            lineNumbers: true,
-            autoCloseTags: true,
-            matchTags: true,
-            matchBrackets: true,
-            lineWrapping: true,
-            indentUnit: 4,
-            smartIndent: true,
-            indentWithTabs: false,
-            foldGutter: true,
-            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-            styleActiveLine: true,
-            showTrailingSpace: true,
-            extraKeys: {
-                "Tab": function(cm) {
-                    if (cm.somethingSelected()) {
-                        cm.indentSelection("add");
-                    } else {
-                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
-                    }
-                },
-                "Shift-Tab": function(cm) {
-                    cm.indentSelection("subtract");
-                },
-                "'<'": function(cm) {
-                    cm.closeTag(cm, '>');
-                },
-                "'/'": function(cm) {
-                    cm.closeTag(cm, '>');
-                },
-                "'{'": function(cm) {
-                    cm.closeTag(cm, '}');
-                },
-                "'('": function(cm) {
-                    cm.closeTag(cm, ')');
-                },
-                "'['": function(cm) {
-                    cm.closeTag(cm, ']');
-                },
-                "Ctrl-Space": "autocomplete",
-                "Alt-Space": "autocomplete",
-                "Ctrl-Q": function(cm) { cm.foldCode(cm.getCursor()); },
-                "Ctrl-/": function(cm) { cm.toggleComment(); },
-                "Cmd-/": function(cm) { cm.toggleComment(); }
-            },
-            hintOptions: {
-                completeSingle: false
-            }
+            mode: 'htmlmixed', theme: editorThemes.dark, lineNumbers: true, autoCloseTags: true,
+            matchTags: true, lineWrapping: true, foldGutter: true, gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+            extraKeys: { "Ctrl-Space": "autocomplete" }
         });
-
         const cssEditor = CodeMirror.fromTextArea(document.getElementById('css-code'), {
-            mode: 'css',
-            theme: 'material-darker',
-            lineNumbers: true,
-            lineWrapping: true,
-            autoCloseBrackets: true,
-            matchBrackets: true,
-            indentUnit: 4,
-            smartIndent: true,
-            indentWithTabs: false,
-            foldGutter: true,
-            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-            styleActiveLine: true,
-            showTrailingSpace: true,
-            lint: {
-                getAnnotations: CodeMirror.lint.css,
-                async: true
-            },
-            extraKeys: {
-                "Tab": function(cm) {
-                    if (cm.somethingSelected()) {
-                        cm.indentSelection("add");
-                    } else {
-                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
-                    }
-                },
-                "Shift-Tab": function(cm) {
-                    cm.indentSelection("subtract");
-                },
-                "Ctrl-Space": "autocomplete",
-                "Alt-Space": "autocomplete",
-                "Ctrl-/": function(cm) { cm.toggleComment(); },
-                "Cmd-/": function(cm) { cm.toggleComment(); }
-            },
-            hintOptions: {
-                completeSingle: false
-            }
+            mode: 'css', theme: editorThemes.dark, lineNumbers: true, lineWrapping: true,
+            foldGutter: true, gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+            lint: { getAnnotations: CodeMirror.lint.css, async: true }
         });
-
         const jsEditor = CodeMirror.fromTextArea(document.getElementById('js-code'), {
-            mode: 'javascript',
-            theme: 'material-darker',
-            lineNumbers: true,
-            lineWrapping: true,
-            autoCloseBrackets: true,
-            matchBrackets: true,
-            indentUnit: 4,
-            smartIndent: true,
-            indentWithTabs: false,
-            foldGutter: true,
-            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-            styleActiveLine: true,
-            showTrailingSpace: true,
-            lint: {
-                getAnnotations: CodeMirror.lint.javascript,
-                options: {
-                    esversion: 6,
-                    undef: true,
-                    unused: true
-                },
-                async: true
-            },
-            extraKeys: {
-                "Tab": function(cm) {
-                    if (cm.somethingSelected()) {
-                        cm.indentSelection("add");
+            mode: 'javascript', theme: editorThemes.dark, lineNumbers: true, lineWrapping: true,
+            foldGutter: true, gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+            lint: { getAnnotations: CodeMirror.lint.javascript, options: { esversion: 8 } }
+        });
+        cssEditor.setValue(''); jsEditor.setValue('');
+
+        function setTheme(theme) {
+            body.classList.remove('light', 'dark'); body.classList.add(theme);
+            const cmTheme = editorThemes[theme];
+            [htmlEditor, cssEditor, jsEditor].forEach(ed => ed.setOption('theme', cmTheme));
+            currentTheme = theme;
+            themeToggleBtn.innerHTML = theme === 'dark' ? moonIcon : sunIcon;
+        }
+        themeToggleBtn.addEventListener('click', ()=> setTheme(currentTheme==='dark'?'light':'dark'));
+        setTheme('dark');
+
+        // ----- Nâng cấp sửa HTML + định dạng đẹp -----
+        function autoFixHTML() {
+            let html = htmlEditor.getValue();
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const serializer = new XMLSerializer();
+                let fixed = serializer.serializeToString(doc);
+                fixed = formatHTML(fixed);
+                htmlEditor.setValue(fixed);
+                runCode();
+                showTemporaryMessage('✅ HTML đã được sửa lỗi và định dạng đẹp!');
+            } catch (e) {
+                alert('Không thể sửa HTML: ' + e.message);
+            }
+        }
+
+        function formatHTML(html) {
+            let doctype = '';
+            let rest = html;
+            const doctypeMatch = html.match(/<!DOCTYPE[^>]*>/i);
+            if (doctypeMatch) {
+                doctype = doctypeMatch[0];
+                rest = html.substring(doctypeMatch.index + doctypeMatch[0].length).trim();
+            }
+            const voidElements = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+            let indentLevel = 0;
+            const indentSize = 2;
+            let formatted = '';
+            const tokens = rest.split(/(<[^>]+>)/g).filter(t => t.trim().length > 0);
+            for (let token of tokens) {
+                if (token.startsWith('<')) {
+                    const isClosing = token.startsWith('</');
+                    const isSelfClosing = token.endsWith('/>');
+                    const tagMatch = token.match(/<\/?([a-zA-Z0-9-]+)/);
+                    const tagName = tagMatch ? tagMatch[1].toLowerCase() : '';
+                    const isVoid = voidElements.has(tagName);
+                    if (isClosing) {
+                        indentLevel = Math.max(0, indentLevel - 1);
+                        formatted += ' '.repeat(indentLevel * indentSize) + token + '\n';
                     } else {
-                        cm.replaceSelection(Array(cm.getOption("indentUnit") + 1).join(" "), "end", "+input");
+                        formatted += ' '.repeat(indentLevel * indentSize) + token + '\n';
+                        if (!isVoid && !isSelfClosing) indentLevel++;
                     }
-                },
-                "Shift-Tab": function(cm) {
-                    cm.indentSelection("subtract");
-                },
-                "Ctrl-Space": "autocomplete",
-                "Alt-Space": "autocomplete",
-                "Ctrl-/": function(cm) { cm.toggleComment(); },
-                "Cmd-/": function(cm) { cm.toggleComment(); }
-            },
-            hintOptions: {
-                completeSingle: false
-            }
-        });
-
-        // Tự động hiển thị gợi ý khi nhập
-        htmlEditor.on("inputRead", function(cm, change) {
-            if (change.text.length > 0 && change.text[0].length > 0) {
-                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-            }
-        });
-
-        cssEditor.on("inputRead", function(cm, change) {
-            if (change.text.length > 0 && change.text[0].length > 0) {
-                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-            }
-        });
-
-        jsEditor.on("inputRead", function(cm, change) {
-            if (change.text.length > 0 && change.text[0].length > 0) {
-                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-            }
-        });
-
-        // Tab switching functionality
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab and corresponding content
-                tab.classList.add('active');
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(`${tabId}-content`).classList.add('active');
-                
-                // Refresh the editor to ensure proper rendering
-                setTimeout(() => {
-                    if (tabId === 'html') htmlEditor.refresh();
-                    if (tabId === 'css') cssEditor.refresh();
-                    if (tabId === 'js') jsEditor.refresh();
-                }, 10);
-            });
-        });
-
-        // Mobile tab switching
-        const mobileTabs = document.querySelectorAll('.mobile-tab');
-        const codeSection = document.querySelector('.code-section');
-        const previewSection = document.querySelector('.preview-section');
-
-        mobileTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                mobileTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                const tabType = tab.getAttribute('data-tab');
-                if (tabType === 'code') {
-                    codeSection.classList.add('active');
-                    previewSection.classList.remove('active');
                 } else {
-                    codeSection.classList.remove('active');
-                    previewSection.classList.add('active');
+                    const trimmed = token.trim();
+                    if (trimmed) formatted += ' '.repeat(indentLevel * indentSize) + trimmed + '\n';
                 }
-            });
-        });
+            }
+            return doctype ? doctype + '\n' + formatted.trim() : formatted.trim();
+        }
 
-        // Run code functionality
+        function showTemporaryMessage(msg) {
+            const panel = document.getElementById('error-panel');
+            const originalContent = panel.innerHTML;
+            const originalActive = panel.classList.contains('active');
+            panel.innerHTML = `<div style="color: #10b981; padding: 8px; font-weight:500;">${msg}</div>`;
+            panel.classList.add('active');
+            setTimeout(() => {
+                panel.innerHTML = originalContent;
+                if (!originalActive) panel.classList.remove('active');
+            }, 2000);
+        }
+
+        document.getElementById('autoFixHtmlBtn').addEventListener('click', autoFixHTML);
+
+        // ----- Preview & Run -----
+        const previewFrame = document.getElementById('preview-frame');
+        const overlay = document.getElementById('iframe-overlay');
+        const frameWrapper = document.getElementById('frameWrapper');
         const runBtn = document.getElementById('run-btn');
         const clearBtn = document.getElementById('clear-btn');
         const resetBtn = document.getElementById('reset-btn');
-        const previewFrame = document.getElementById('preview-frame');
-        const iframeOverlay = document.getElementById('iframe-overlay');
-        const errorIndicator = document.getElementById('error-indicator');
-        const errorCount = document.getElementById('error-count');
         const errorPanel = document.getElementById('error-panel');
-
-        // Hàm kiểm tra lỗi
-        function checkForErrors() {
-            let totalErrors = 0;
-            const allErrors = [];
-            
-            // Kiểm tra lỗi HTML cơ bản
-            const htmlCode = htmlEditor.getValue();
-            const htmlErrors = validateHTML(htmlCode);
-            totalErrors += htmlErrors.length;
-            allErrors.push(...htmlErrors.map(e => ({...e, type: 'HTML'})));
-            
-            // Lỗi CSS và JS được phát hiện bởi CodeMirror lint
-            const cssState = cssEditor.state.lint.marked;
-            const jsState = jsEditor.state.lint.marked;
-            
-            if (cssState && cssState.length > 0) {
-                totalErrors += cssState.length;
-                allErrors.push(...cssState.map(m => ({
-                    message: m.message,
-                    type: 'CSS',
-                    line: m.from.line + 1
-                })));
-            }
-            
-            if (jsState && jsState.length > 0) {
-                totalErrors += jsState.length;
-                allErrors.push(...jsState.map(m => ({
-                    message: m.message,
-                    type: 'JavaScript',
-                    line: m.from.line + 1
-                })));
-            }
-            
-            // Cập nhật giao diện hiển thị lỗi
-            updateErrorDisplay(totalErrors, allErrors);
-            
-            return totalErrors;
-        }
-        
-        // Hàm kiểm tra HTML cơ bản
-        function validateHTML(html) {
-            const errors = [];
-            
-            // Kiểm tra thẻ đóng mở cơ bản
-            const openTags = html.match(/<(\w+)[^>]*>/g) || [];
-            const closeTags = html.match(/<\/(\w+)>/g) || [];
-            
-            // Đếm số lượng thẻ mở và đóng
-            const tagCount = {};
-            
-            openTags.forEach(tag => {
-                const tagName = tag.match(/<(\w+)/)[1].toLowerCase();
-                if (tagName !== 'br' && tagName !== 'hr' && tagName !== 'img' && tagName !== 'meta' && tagName !== 'link') {
-                    tagCount[tagName] = (tagCount[tagName] || 0) + 1;
-                }
-            });
-            
-            closeTags.forEach(tag => {
-                const tagName = tag.match(/<\/(\w+)>/)[1].toLowerCase();
-                if (tagCount[tagName]) {
-                    tagCount[tagName]--;
-                } else {
-                    errors.push({
-                        message: `Thẻ đóng </${tagName}> không có thẻ mở tương ứng`,
-                        line: findLineNumber(html, tag)
-                    });
-                }
-            });
-            
-            // Kiểm tra thẻ mở không đóng
-            Object.keys(tagCount).forEach(tagName => {
-                if (tagCount[tagName] > 0) {
-                    errors.push({
-                        message: `Thẻ mở <${tagName}> không có thẻ đóng tương ứng`,
-                        line: findLineNumber(html, `<${tagName}`)
-                    });
-                }
-            });
-            
-            return errors;
-        }
-        
-        // Tìm số dòng của một chuỗi trong mã nguồn
-        function findLineNumber(text, searchString) {
-            const lines = text.split('\n');
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].includes(searchString)) {
-                    return i + 1;
-                }
-            }
-            return 1;
-        }
-        
-        // Cập nhật hiển thị lỗi
-        function updateErrorDisplay(errorCount, errors) {
-            // Cập nhật chỉ báo lỗi
-            if (errorCount > 0) {
-                errorIndicator.classList.remove('hidden');
-                errorCount.textContent = `${errorCount} lỗi`;
-            } else {
-                errorIndicator.classList.add('hidden');
-            }
-            
-            // Cập nhật tab lỗi
-            tabs.forEach(tab => {
-                const tabType = tab.getAttribute('data-tab');
-                const hasError = errors.some(e => e.type.toLowerCase() === tabType);
-                
-                if (hasError) {
-                    tab.classList.add('has-error');
-                } else {
-                    tab.classList.remove('has-error');
-                }
-            });
-            
-            // Cập nhật mobile tab lỗi
-            const hasAnyError = errorCount > 0;
-            const codeMobileTab = document.querySelector('.mobile-tab[data-tab="code"]');
-            if (hasAnyError) {
-                codeMobileTab.classList.add('has-error');
-            } else {
-                codeMobileTab.classList.remove('has-error');
-            }
-            
-            // Cập nhật panel lỗi
-            if (errorCount > 0) {
-                errorPanel.classList.add('active');
-                errorPanel.innerHTML = '';
-                
-                errors.forEach(error => {
-                    const errorItem = document.createElement('div');
-                    errorItem.className = 'error-item';
-                    
-                    const errorIcon = document.createElement('div');
-                    errorIcon.className = 'error-icon';
-                    errorIcon.textContent = '●';
-                    
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'error-message';
-                    errorMessage.textContent = `[${error.type}] Dòng ${error.line}: ${error.message}`;
-                    
-                    errorItem.appendChild(errorIcon);
-                    errorItem.appendChild(errorMessage);
-                    errorPanel.appendChild(errorItem);
-                });
-            } else {
-                errorPanel.classList.remove('active');
-            }
-        }
+        const mobileTabs = document.querySelectorAll('.mobile-tab');
+        const codeSection = document.querySelector('.code-section');
+        const previewSection = document.querySelector('.preview-section');
+        const globalButtonBar = document.getElementById('globalButtonBar');
 
         function runCode() {
-            // Hiển thị overlay tải
-            iframeOverlay.classList.add('active');
-            
-            // Kiểm tra lỗi trước khi chạy
-            const errorCount = checkForErrors();
-            
+            overlay.classList.add('active');
             const html = htmlEditor.getValue();
             const css = cssEditor.getValue();
             const js = jsEditor.getValue();
-            
-            const previewDocument = previewFrame.contentDocument || previewFrame.contentWindow.document;
-            
-            // Tạo tài liệu HTML hoàn chỉnh với mã được cung cấp
-            const fullHtml = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <style>${css}</style>
-                </head>
-                <body>
-                    ${html}
-                    <script>${js}<\/script>
-                </body>
-                </html>
-            `;
-            
-            previewDocument.open();
-            previewDocument.write(fullHtml);
-            previewDocument.close();
-            
-            // Ẩn overlay sau khi tải xong
-            setTimeout(() => {
-                iframeOverlay.classList.remove('active');
-            }, 500);
+            const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            doc.open();
+            doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`);
+            doc.close();
+            setTimeout(() => overlay.classList.remove('active'), 350);
+            checkErrors();
         }
 
-        function clearAllCode() {
-            if (confirm('Bạn có chắc chắn muốn xóa tất cả mã? Hành động này không thể hoàn tác.')) {
-                htmlEditor.setValue('');
-                cssEditor.setValue('');
-                jsEditor.setValue('');
-                runCode();
+        function checkErrors() {
+            const cssMarks = cssEditor.state.lint?.marked || [];
+            const jsMarks = jsEditor.state.lint?.marked || [];
+            const errors = [
+                ...cssMarks.map(m => ({ type: 'CSS', line: m.from.line + 1, msg: m.message })),
+                ...jsMarks.map(m => ({ type: 'JS', line: m.from.line + 1, msg: m.message }))
+            ];
+            const count = errors.length;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('has-error'));
+            if (cssMarks.length) document.querySelector('.tab[data-tab="css"]')?.classList.add('has-error');
+            if (jsMarks.length) document.querySelector('.tab[data-tab="js"]')?.classList.add('has-error');
+            errorPanel.classList.toggle('active', count > 0);
+            if (count) {
+                errorPanel.innerHTML = errors.map(e => `<div class="error-item">[${e.type}] dòng ${e.line}: ${e.msg}</div>`).join('');
             }
         }
 
-        function resetToDefault() {
-            if (confirm('Bạn có muốn đặt lại tất cả về trạng thái ban đầu?')) {
-                htmlEditor.setValue(`<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang web của tôi</title>
-</head>
-<body>
-    <h1>Xin chào!</h1>
-    <p>Đây là trang web được tạo bằng trình soạn thảo HTML.</p>
-</body>
-</html>`);
-                cssEditor.setValue(`/* 
- * TRÌNH SOẠN THẢO CSS
- * 
- * Nhập mã CSS của bạn vào đây. CSS sẽ được áp dụng trực tiếp vào trang HTML.
- * 
- * Ví dụ:
- * - Để thay đổi màu nền: body { background-color: #f0f0f0; }
- * - Để thay đổi font chữ: body { font-family: Arial, sans-serif; }
- * - Để tạo hiệu ứng hover: button:hover { background-color: #4a6ee0; }
- * 
- * CSS được viết theo cú pháp: selector { property: value; }
- */
-
-/* Bắt đầu viết CSS của bạn từ đây */`);
-                jsEditor.setValue(`/* 
- * TRÌNH SOẠN THẢO JAVASCRIPT
- * 
- * Nhập mã JavaScript của bạn vào đây. JS sẽ được thực thi trên trang HTML.
- * 
- * Ví dụ:
- * - Hiển thị thông báo: alert('Xin chào!');
- * - Thay đổi nội dung: document.getElementById('id').innerHTML = 'Nội dung mới';
- * - Xử lý sự kiện: element.addEventListener('click', function() { ... });
- * 
- * Mẹo: Sử dụng console.log() để in ra kết quả kiểm tra
- */
-
-// Bắt đầu viết JavaScript của bạn từ đây`);
-                runCode();
-            }
-        }
-
-        // Event listeners
         runBtn.addEventListener('click', runCode);
-        clearBtn.addEventListener('click', clearAllCode);
-        resetBtn.addEventListener('click', resetToDefault);
-
-        // Auto-run code after a short delay when typing
-        let timeout;
-        [htmlEditor, cssEditor, jsEditor].forEach(editor => {
-            editor.on('change', () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    checkForErrors();
-                }, 1000);
-            });
+        clearBtn.addEventListener('click', ()=> {
+            if(confirm('Xóa toàn bộ code?')) { htmlEditor.setValue(''); cssEditor.setValue(''); jsEditor.setValue(''); runCode(); }
+        });
+        resetBtn.addEventListener('click', ()=> {
+            if(confirm('Đặt lại code mẫu?')) {
+                htmlEditor.setValue(`<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Trang của tôi</title></head>\n<body><h1>Xin chào!</h1><p>Đây là trình soạn thảo HTML.</p></body>\n</html>`);
+                cssEditor.setValue(''); jsEditor.setValue(''); runCode();
+            }
         });
 
-        // Chạy code khi tải trang
-        document.addEventListener('DOMContentLoaded', runCode);
-        
-        // Xử lý thay đổi kích thước màn hình
-        window.addEventListener('resize', function() {
-            [htmlEditor, cssEditor, jsEditor].forEach(editor => {
-                editor.refresh();
-            });
+        // Mobile & UI
+        function toggleButtonBar() {
+            if(window.innerWidth<=768) globalButtonBar.classList.toggle('hidden', previewSection.classList.contains('active'));
+            else globalButtonBar.classList.remove('hidden');
+        }
+        mobileTabs.forEach(t=> t.addEventListener('click', ()=>{
+            mobileTabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+            const type = t.dataset.tab;
+            codeSection.classList.toggle('active', type==='code');
+            previewSection.classList.toggle('active', type==='preview');
+            toggleButtonBar();
+        }));
+        window.addEventListener('resize', ()=>{ toggleButtonBar(); [htmlEditor,cssEditor,jsEditor].forEach(e=>e.refresh()); });
+        document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>{
+            document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+            document.getElementById(t.dataset.tab+'-content').classList.add('active');
+            setTimeout(()=>{ if(t.dataset.tab==='html') htmlEditor.refresh(); else if(t.dataset.tab==='css') cssEditor.refresh(); else jsEditor.refresh(); },20);
+        }));
+
+        // Tỉ lệ khung hình chuẩn hơn
+        document.querySelectorAll('.ratio-btn').forEach(b=> b.addEventListener('click', ()=>{
+            document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+            const [w,h] = b.dataset.ratio.split(':').map(Number);
+            frameWrapper.style.aspectRatio = `${w}/${h}`;
+        }));
+
+        // Upload file
+        function readFile(file, editor) { if(!file) return; const r = new FileReader(); r.onload = e=> { editor.setValue(e.target.result); runCode(); }; r.readAsText(file); }
+        document.getElementById('htmlFileInput').addEventListener('change', e=> readFile(e.target.files[0], htmlEditor));
+        document.getElementById('cssFileInput').addEventListener('change', e=> readFile(e.target.files[0], cssEditor));
+        document.getElementById('jsFileInput').addEventListener('change', e=> readFile(e.target.files[0], jsEditor));
+        document.getElementById('uploadHtmlBtn').addEventListener('click', ()=> document.getElementById('htmlFileInput').click());
+        document.getElementById('uploadCssBtn').addEventListener('click', ()=> document.getElementById('cssFileInput').click());
+        document.getElementById('uploadJsBtn').addEventListener('click', ()=> document.getElementById('jsFileInput').click());
+
+        window.addEventListener('DOMContentLoaded', ()=>{
+            runCode();
+            toggleButtonBar();
         });
-    </script>
+    })();
+</script>
 </body>
 </html>
