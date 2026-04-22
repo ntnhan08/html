@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>✨ Code Studio Pro · Soạn thảo HTML/CSS/JS</title>
     <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/fold/foldgutter.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/lint/lint.min.css">
     <style>
+        /* ===== RESET & VARIABLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -36,10 +37,13 @@
             --preview-bg: #0f172a;
             --shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.5);
             --shadow-sm: 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-            --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
             --radius-lg: 20px;
             --radius-md: 14px;
             --radius-sm: 30px;
+            
+            /* Kích thước chạm tối thiểu */
+            --touch-target: 44px;
         }
 
         body.light {
@@ -65,9 +69,11 @@
             background: var(--bg-body);
             color: var(--text-primary);
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             transition: background 0.3s ease, color 0.2s;
             animation: fadeIn 0.5s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
@@ -78,26 +84,35 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
             backdrop-filter: blur(2px);
         }
 
-        /* Mobile tabs */
+        /* ===== MOBILE TABS ===== */
         .mobile-tabs {
             display: none;
             background: var(--bg-panel);
             border-bottom: 1px solid var(--border-color);
             backdrop-filter: blur(8px);
+            padding: 4px;
         }
         .mobile-tab {
             flex: 1;
             text-align: center;
             padding: 14px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
             color: var(--text-primary);
             position: relative;
             letter-spacing: 0.3px;
+            border-radius: 40px;
+            margin: 2px;
+            min-height: var(--touch-target);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .mobile-tab.active {
             background: var(--primary);
@@ -108,7 +123,7 @@
             content: '';
             position: absolute;
             top: 8px; right: 8px;
-            width: 8px; height: 8px;
+            width: 10px; height: 10px;
             border-radius: 50%;
             background: #ef4444;
             animation: pulseGlow 1.5s infinite;
@@ -127,6 +142,7 @@
             position: relative;
         }
 
+        /* ===== CODE & PREVIEW SECTIONS ===== */
         .code-section, .preview-section {
             flex: 1;
             display: flex;
@@ -141,7 +157,7 @@
 
         .section-header {
             background: var(--bg-header);
-            padding: 12px 22px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -149,36 +165,42 @@
             min-height: 58px;
             backdrop-filter: blur(8px);
             transition: var(--transition);
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .section-title {
             font-weight: 650;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             color: var(--text-primary);
-            font-size: 1.05rem;
+            font-size: clamp(0.95rem, 4vw, 1.2rem);
         }
 
+        /* Aspect ratio selector */
         .aspect-ratio-selector {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             background: var(--bg-panel);
-            padding: 5px;
+            padding: 4px;
             border-radius: 40px;
             border: 1px solid var(--border-color);
             backdrop-filter: blur(4px);
+            flex-wrap: wrap;
         }
         .ratio-btn {
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 0.75rem;
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
             font-weight: 600;
             padding: 6px 12px;
             border-radius: 30px;
             cursor: pointer;
             transition: var(--transition);
             letter-spacing: 0.3px;
+            min-height: 36px;
+            min-width: 60px;
         }
         .ratio-btn:hover {
             background: var(--primary-soft);
@@ -190,33 +212,38 @@
             box-shadow: var(--shadow-sm);
         }
 
+        /* Header actions */
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-left: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
-        .upload-group { display: flex; gap: 6px; }
+        .upload-group { 
+            display: flex; 
+            gap: 6px;
+            flex-wrap: wrap;
+        }
         .action-btn {
             background: var(--btn-secondary);
             border: none;
             color: white;
-            padding: 7px 14px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
             box-shadow: var(--shadow-sm);
             white-space: nowrap;
             backdrop-filter: blur(4px);
+            min-height: var(--touch-target);
         }
         .action-btn svg {
-            width: 16px; height: 16px;
+            width: 18px; height: 18px;
             fill: currentColor;
         }
         .action-btn:hover {
@@ -237,7 +264,8 @@
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            width: 38px; height: 38px;
+            width: var(--touch-target);
+            height: var(--touch-target);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -245,8 +273,9 @@
             cursor: pointer;
             transition: var(--transition);
             backdrop-filter: blur(4px);
+            flex-shrink: 0;
         }
-        .theme-toggle-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .theme-toggle-btn svg { width: 22px; height: 22px; fill: currentColor; }
         .theme-toggle-btn:hover { 
             background: var(--primary); 
             color: white; 
@@ -254,14 +283,19 @@
             border-color: transparent;
         }
 
+        /* Tabs */
         .tab-container {
             display: flex;
             background: var(--bg-panel);
             overflow-x: auto;
+            overflow-y: hidden;
             border-bottom: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
+        .tab-container::-webkit-scrollbar { display: none; }
         .tab {
-            padding: 12px 22px;
+            padding: 12px 20px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: var(--transition);
@@ -269,6 +303,10 @@
             font-weight: 500;
             color: var(--text-secondary);
             position: relative;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            min-height: var(--touch-target);
+            display: flex;
+            align-items: center;
         }
         .tab:hover {
             color: var(--text-primary);
@@ -284,11 +322,12 @@
             content: '';
             position: absolute;
             top: 8px; right: 8px;
-            width: 7px; height: 7px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             background: #ef4444;
             animation: pulseGlow 1.5s infinite;
         }
+
         .tab-content {
             display: none;
             flex: 1;
@@ -296,9 +335,10 @@
         }
         .tab-content.active { display: flex; }
 
+        /* CodeMirror */
         .CodeMirror {
             height: 100%;
-            font-size: 14px;
+            font-size: clamp(13px, 4vw, 15px);
             background: var(--bg-panel) !important;
             color: var(--text-primary) !important;
             width: 100% !important;
@@ -309,13 +349,14 @@
             border-right: 1px solid var(--border-color) !important;
         }
 
+        /* Preview */
         .preview-container {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--preview-bg);
-            padding: 20px;
+            padding: 12px;
         }
         .preview-frame-wrapper {
             position: relative;
@@ -354,17 +395,19 @@
             visibility: hidden;
             transition: 0.25s;
             font-weight: 500;
+            font-size: 1.1rem;
         }
         .iframe-overlay.active {
             opacity: 1;
             visibility: visible;
         }
 
+        /* Bottom buttons */
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 18px;
-            padding: 16px 24px;
+            gap: 12px;
+            padding: 12px 16px;
             background: var(--bg-panel);
             border-top: 1px solid var(--border-color);
             backdrop-filter: blur(8px);
@@ -378,20 +421,24 @@
             width: 100%;
         }
         .btn {
-            padding: 14px 28px;
+            padding: 12px 24px;
             border: none;
             border-radius: 50px;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1.05rem);
             box-shadow: var(--shadow-sm);
             color: white;
             letter-spacing: 0.3px;
             backdrop-filter: blur(4px);
+            min-height: var(--touch-target);
+            min-width: 100px;
+            flex: 0 1 auto;
         }
         .btn-primary { background: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 20px -8px var(--primary); }
@@ -400,22 +447,29 @@
         .btn-warning { background: var(--btn-warning); }
         .btn-warning:hover { background: #dc2626; transform: translateY(-3px); }
 
+        /* Error panel */
         .error-panel {
             background: var(--error-bg);
             border-top: 1px solid #ef4444;
             color: #fca5a5;
-            padding: 12px 18px;
+            padding: 10px 16px;
             font-size: 0.85rem;
             max-height: 120px;
             overflow-y: auto;
             display: none;
             backdrop-filter: blur(4px);
             animation: slideUp 0.2s ease;
+            line-height: 1.5;
         }
         .error-panel.active { display: block; }
         body.light .error-panel { color: #b91c1c; }
 
-        /* Responsive */
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        /* ===== RESPONSIVE ENHANCEMENTS ===== */
         @media (max-width: 768px) {
             .mobile-tabs { display: flex; }
             .code-section, .preview-section {
@@ -434,24 +488,72 @@
                 position: fixed;
                 bottom: 0; left: 0; width: 100%;
                 z-index: 100;
-                padding: 14px 16px;
+                padding: 12px 12px;
+                gap: 8px;
             }
-            .btn { flex: 1; padding: 14px 10px; font-size: 0.9rem; }
-            .header-actions { gap: 6px; }
-            .action-btn { padding: 7px 12px; font-size: 0.7rem; }
+            .btn { 
+                flex: 1; 
+                padding: 14px 8px; 
+                min-width: 0;
+                font-size: 0.95rem;
+            }
+            .section-header {
+                padding: 8px 12px;
+            }
+            .action-btn {
+                padding: 8px 12px;
+            }
+            .aspect-ratio-selector {
+                gap: 2px;
+            }
+            .ratio-btn {
+                padding: 5px 8px;
+                min-width: 50px;
+            }
+            /* Đảm bảo nội dung không bị tràn */
+            .header-actions {
+                gap: 6px;
+            }
         }
 
-        /* Animation for elements */
-        .action-btn, .btn, .tab, .ratio-btn {
-            transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+        /* Tablet và desktop nhỏ */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .btn {
+                padding: 12px 20px;
+            }
+            .action-btn {
+                padding: 8px 14px;
+            }
         }
-        .section-header {
-            transition: background 0.3s, border-color 0.3s;
+
+        /* Đảm bảo các nút có kích thước chạm tối thiểu */
+        @media (pointer: coarse) {
+            .action-btn, .btn, .tab, .mobile-tab, .ratio-btn, .theme-toggle-btn {
+                min-height: var(--touch-target);
+            }
         }
-        /* modern scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        /* Tối ưu cho màn hình rất nhỏ */
+        @media (max-width: 480px) {
+            .section-title span {
+                display: none;
+            }
+            .section-title::after {
+                content: "Code";
+            }
+            .preview-section .section-title::after {
+                content: "Preview";
+            }
+            .action-btn span {
+                display: none;
+            }
+            .action-btn svg {
+                margin: 0;
+            }
+            .upload-group .action-btn {
+                padding: 8px 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -466,25 +568,25 @@
             <!-- CODE SECTION -->
             <div class="code-section active">
                 <div class="section-header">
-                    <div class="section-title">📄 Mã nguồn</div>
+                    <div class="section-title"><span>📄 Mã nguồn</span></div>
                     <div class="header-actions">
                         <div class="upload-group">
                             <button class="action-btn" id="uploadHtmlBtn">
                                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2zm0-4h8v2H8v-2z"/></svg>
-                                HTML
+                                <span>HTML</span>
                             </button>
                             <button class="action-btn" id="uploadCssBtn">
                                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2z"/></svg>
-                                CSS
+                                <span>CSS</span>
                             </button>
                             <button class="action-btn" id="uploadJsBtn">
                                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm0 18H6V4h7v5h5v11zM8 15h8v2H8v-2z"/></svg>
-                                JS
+                                <span>JS</span>
                             </button>
                         </div>
                         <button class="action-btn auto-fix" id="autoFixHtmlBtn">
                             <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                            Sửa & Định dạng
+                            <span>Sửa</span>
                         </button>
                         <button class="theme-toggle-btn" id="themeToggleBtn"></button>
                     </div>
@@ -513,7 +615,7 @@
             <!-- PREVIEW SECTION -->
             <div class="preview-section">
                 <div class="section-header">
-                    <div class="section-title">🖥️ Kết quả trực tiếp</div>
+                    <div class="section-title"><span>🖥️ Kết quả trực tiếp</span></div>
                     <div class="aspect-ratio-selector" id="aspectRatioSelector">
                         <button class="ratio-btn active" data-ratio="16:9">16:9</button>
                         <button class="ratio-btn" data-ratio="16:10">16:10</button>
@@ -537,7 +639,7 @@
 
     <div class="button-container" id="globalButtonBar">
         <button class="btn btn-primary" id="run-btn">▶ Chạy</button>
-        <button class="btn btn-secondary" id="clear-btn">🗑️ Xóa hết</button>
+        <button class="btn btn-secondary" id="clear-btn">🗑️ Xóa</button>
         <button class="btn btn-warning" id="reset-btn">↻ Đặt lại</button>
     </div>
 </div>
@@ -607,7 +709,7 @@
         themeToggleBtn.addEventListener('click', ()=> setTheme(currentTheme==='dark'?'light':'dark'));
         setTheme('dark');
 
-        // ----- Nâng cấp sửa HTML + định dạng đẹp -----
+        // ----- Sửa HTML + định dạng đẹp -----
         function autoFixHTML() {
             let html = htmlEditor.getValue();
             try {
@@ -739,7 +841,10 @@
             previewSection.classList.toggle('active', type==='preview');
             toggleButtonBar();
         }));
-        window.addEventListener('resize', ()=>{ toggleButtonBar(); [htmlEditor,cssEditor,jsEditor].forEach(e=>e.refresh()); });
+        window.addEventListener('resize', ()=>{ 
+            toggleButtonBar(); 
+            [htmlEditor,cssEditor,jsEditor].forEach(e=> e.refresh()); 
+        });
         document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>{
             document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
             document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
@@ -747,7 +852,7 @@
             setTimeout(()=>{ if(t.dataset.tab==='html') htmlEditor.refresh(); else if(t.dataset.tab==='css') cssEditor.refresh(); else jsEditor.refresh(); },20);
         }));
 
-        // Tỉ lệ khung hình chuẩn hơn
+        // Tỉ lệ khung hình
         document.querySelectorAll('.ratio-btn').forEach(b=> b.addEventListener('click', ()=>{
             document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
             const [w,h] = b.dataset.ratio.split(':').map(Number);
